@@ -1,10 +1,16 @@
+#  Copyright (c) 2022.
+#  Myauck <leogaillet77@gmail.com>
+#
+#  File made for Tello Drone
+
 from enum import unique
-from ...core.command.enumConfigurator import EnumConfigurator
+from .telloEnumParser import *
+
 
 @unique
-class TelemetryCommandEnum(EnumConfigurator):
+class TelemetryCommandEnum(TelloEnumPaser):
 
-    # COMMAND_NAME = ( COMMAND_PROMPT, UNFORMATED RESPONSE RETURNED )
+    # 1: COMMANDE       2: UNITE
 
     # Permet de récupérer la vitesse actuelle du drone (exprimée en cm/s)
     SPEED = ("speed?", "{unit} cm/s")
@@ -45,11 +51,8 @@ class TelemetryCommandEnum(EnumConfigurator):
     __unit: str
 
     def __init__(self, *args):
-        super().__init__(args[0], [], False, True)
-        if len(args) > 1:
-            self.__unit = args[1]
-        else:
-            self.__unit = "{unit}"
+        unit = self._getDefault(args[1], "{unit}")
+        super().__init__(args[0], unit, False, True)
 
     def getUnit(self, value) -> str:
         return self.__unit.replace("{unit}", value)
