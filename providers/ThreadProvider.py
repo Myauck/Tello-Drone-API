@@ -4,10 +4,10 @@
 #  File made for Tello Drone
 
 from threading import Thread
-from .AbstractProvider import AbstractProvider
+from .ProviderInterface import ProviderInterface
 
 
-class ThreadProvider(AbstractProvider):
+class ThreadProvider(ProviderInterface):
 
     __threads: dict[str, Thread]
 
@@ -21,8 +21,12 @@ class ThreadProvider(AbstractProvider):
         if self.exists(threadName):
             return self.__threads[threadName]
 
-    def set(self, threadName, function: callable) -> bool:
+    def set(self, threadName: str, function: callable) -> bool:
         if self.exists(threadName):
             return False
         self.__threads[threadName] = Thread(target=function)
+        self.__threads[threadName].daemon = True
+        self.__threads[threadName].start()
         return True
+    
+    def stop(self, threadName: str) -> 

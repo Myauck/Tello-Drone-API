@@ -3,10 +3,10 @@
 #
 #  File made for Tello Drone
 
-from .AbstractProvider import AbstractProvider
+from .ProviderInterface import ProviderInterface
 
 
-class ServiceProvider(AbstractProvider):
+class ServiceProvider(ProviderInterface):
 
     __statements: dict[str, bool]
 
