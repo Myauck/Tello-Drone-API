@@ -3,8 +3,8 @@
 #
 #  File made for Tello Drone
 
-from .telloCommandInterface import TelloCommandInterface
-from .commandType import CommandType
+from .TelloCommandInterface import TelloCommandInterface
+from .CommandType import CommandType
 from enum import Enum
 
 
@@ -22,7 +22,7 @@ def getEnumValue(enum: Enum, command_name: object):
             return getattr(enum, command_name.upper())
 
 
-class TelloEnumPaser(TelloCommandInterface, Enum):
+class CommandEnumParser(TelloCommandInterface, Enum):
 
     __command: str
     __parameters: list
@@ -45,7 +45,7 @@ class TelloEnumPaser(TelloCommandInterface, Enum):
     def getParameters(self) -> list:
         return self.__parameters
 
-    def isEditable(self) -> bool:
+    def hasParameters(self) -> bool:
         return self.__editable
 
     def hasResponse(self) -> bool:
