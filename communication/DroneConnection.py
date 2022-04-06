@@ -6,15 +6,15 @@
 from .AbstractSocket import AbstractSocket
 
 
-class DroneCommandSocket:
+class DroneConnection:
 
-    __client_socket: AbstractSocket
+    __client: AbstractSocket
     __buffer_size: int
     __tello_address: tuple[str, int]
 
-    def __init__(self, client_socket: AbstractSocket, tello_address: tuple[str, int] = ("192.168.10.1", 8889),
+    def __init__(self, client_socket: AbstractSocket, tello_address: tuple[str, int],
                  buffer_size: int = 1024):
-        self.__client_socket = client_socket
+        self.__client = client_socket
         self.__tello_address = tello_address
         self.changeBufferSize(buffer_size)
 
@@ -26,11 +26,11 @@ class DroneCommandSocket:
 
     def send(self, command: str) -> bool:
         encoded_message = command.encode('utf-8')
-        sent = self.__client_socket.getSocket().sendto(encoded_message, self.__tello_address)
+        sent = self.__client.getSocket().sendto(encoded_message, self.__tello_address)
         if sent < len(encoded_message):
             return False
         return True
 
     def recieve(self) -> str:
-        return self.__client_socket.getSocket().recv(self.getBufferSize()).decode(encoding="utf-8")
+        return self.__client.getSocket().recv(self.getBufferSize()).decode(encoding="utf-8")
 

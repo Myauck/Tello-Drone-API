@@ -6,7 +6,7 @@
 from enum import Enum
 
 
-class SocketType(Enum):
+class ProtocolType(Enum):
 
     SOCKET_UDP = 0
     SOCKET_TCP = 1

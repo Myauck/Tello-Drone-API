@@ -4,22 +4,22 @@
 #  File made for Tello Drone
 
 from abc import abstractmethod
+from .CommandType import CommandType
 
 
 class TelloCommandInterface:
 
     @abstractmethod
-    def getCommand(self) -> str:
-        pass
+    def getCommand(self) -> str: pass
 
     @abstractmethod
-    def getParameters(self) -> list:
-        pass
+    def getParameters(self) -> list: pass
 
     @abstractmethod
-    def isEditable(self) -> bool:
-        pass
+    def hasParameters(self) -> bool: pass
 
     @abstractmethod
-    def hasResponse(self) -> bool:
-        pass
+    def hasResponse(self) -> bool: pass
+
+    @abstractmethod
+    def getType(self) -> CommandType: pass
