@@ -6,7 +6,7 @@
 from abc import ABC, abstractmethod
 
 
-class AbstractProvider(ABC):
+class ProviderInterface(ABC):
 
     @abstractmethod
     def exists(self, name: str) -> bool:

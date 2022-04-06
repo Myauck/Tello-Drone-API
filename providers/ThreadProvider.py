@@ -29,4 +29,8 @@ class ThreadProvider(ProviderInterface):
         self.__threads[threadName].start()
         return True
     
-    def stop(self, threadName: str) -> 
+    def stop(self, threadName: str) -> bool:
+        if self.exists(threadName):
+            del self.__threads[threadName]
+            return True
+        return False
