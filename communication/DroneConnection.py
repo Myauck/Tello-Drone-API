@@ -3,34 +3,24 @@
 #
 #  File made for Tello Drone
 
-from .AbstractSocket import AbstractSocket
+from .ConnectionInterface import ConnectionInterface
 
 
 class DroneConnection:
 
-    __client: AbstractSocket
-    __buffer_size: int
+    __client: ConnectionInterface
     __tello_address: tuple[str, int]
 
-    def __init__(self, client_socket: AbstractSocket, tello_address: tuple[str, int],
-                 buffer_size: int = 1024):
-        self.__client = client_socket
+    def __init__(self, client_connection: ConnectionInterface, tello_address: tuple[str, int]):
+        self.__client = client_connection
         self.__tello_address = tello_address
-        self.changeBufferSize(buffer_size)
-
-    def changeBufferSize(self, buffer_size: int) -> None:
-        self.__buffer_size = buffer_size
-
-    def getBufferSize(self) -> int:
-        return self.__buffer_size
 
     def send(self, command: str) -> bool:
         encoded_message = command.encode('utf-8')
-        sent = self.__client.getSocket().sendto(encoded_message, self.__tello_address)
+        sent = self.__client.getConnection().sendto(encoded_message, self.__tello_address)
         if sent < len(encoded_message):
             return False
         return True
 
-    def recieve(self) -> str:
-        return self.__client.getSocket().recv(self.getBufferSize()).decode(encoding="utf-8")
-
+    def recieve(self, buffer_size: int = 1024) -> str:
+        return self.__client.getConnection().recv(buffer_size).decode(encoding="utf-8")
