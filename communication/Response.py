@@ -7,33 +7,30 @@ from time import time
 
 
 class Response:
-    
-    __command: str
-    __response: str
 
+    __sent: str
+    __response: str
     __start_time: float
     __duration: float
 
-    def __init__(self, command: str):
-        self.__command = command
-
+    def __init__(self, sent: str):
+        self.__sent = sent
         self.__start_time = time()
         self.__duration = -1
 
-    def command(self) -> str:
-        self.__command
+    def whatSent(self) -> str:
+        return self.__sent
 
-    def add(self, response: str):
-        self.__response = str(response)
-        # Calcule le temps total nécessaire à l'exécution de la commande
-        end_time = time()
-        self.__duration = (end_time - self.__start_time)
+    def setResponse(self, response: str):
+        if not self.responseExists():
+            self.__response = str(response)
+            self.__duration = time() - self.__start_time
 
-    def exists(self) -> bool:
+    def responseExists(self) -> bool:
         return self.__response is not None
 
-    def get(self) -> str:
+    def getResponse(self) -> str:
         return self.__response
 
-    def duration(self) -> float:
+    def getReceptionTime(self) -> float:
         return self.__duration
