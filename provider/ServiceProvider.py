@@ -21,7 +21,7 @@ class ServiceProvider(ProviderInterface):
             return self.__statements[statementName]
 
     def set(self, statementName, status: bool) -> bool:
-        if self.exists(statementName):
-            return False
-        self.__statements[statementName] = status
-        return True
+        if not self.exists(statementName):
+            self.__statements[statementName] = status
+            return True
+        return False
