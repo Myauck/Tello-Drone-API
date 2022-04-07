@@ -3,68 +3,102 @@
 #
 #  File made for Tello Drone
 
-from . import *
-from socket import error as socketError
+import provider as ModProv
+import communication as ModCom
+import command as ModCmd
+from socket import error
+from time import time
 
 
-class TelloAPI:
+class API:
 
-    __serviceProvider: ServiceProvider
-    __threadProvider: ThreadProvider
+    __services: ModProv.ServiceProvider
+    __threads: ModProv.ThreadProvider
 
-    __responses: list[Response]
-    __client: ClientSocket
-    __drone: DroneConnection
+    __client: ModCom.ClientConnection
+    __drone: ModCom.DroneConnection
 
-    __videoCapturer: DroneVideoSocket
+    __responses: list[ModCom.Response]
 
-    def __init__(self):
-        self.__client = ClientSocket(("0.0.0.0", 9000))
-        self.__drone = DroneConnection(self.__client, ("0.0.0.0", 8889))
+    __timeout: int
+    __buffer: int
+    __authorizer_reponse_reciever: bool
 
-        self.__serviceProvider.set("commandsdk", False)
-        self.__threadProvider.set("command_response_reciever", self.__thread_reciever)
+    def __init__(self, RECIEVE_TIMEOUT: int, RECIEVE_BUFFER: int, AUTOMATISE_RESPONSE_RECIEVER: bool):
+        self.__services = ModProv.ServiceProvider()
+        self.__threads = ModProv.ThreadProvider()
 
-    def getDroneAttribute(self, telemetryCommand: TelemetryCommand):
-        self.__sendCommand(telemetryCommand.getCommand())
+        self.__timeout = RECIEVE_TIMEOUT
+        self.__buffer = RECIEVE_BUFFER
+        self.__authorizer_reponse_reciever = AUTOMATISE_RESPONSE_RECIEVER
 
-    def sendDroneCommand(self, controlCommand: ControlCommand, parameters: dict[str, str] = None):
-        if controlCommand.hasParameters():
-            self.__sendCommand(controlCommand.replaceParameters(parameters))
-        else:
-            self.__sendCommand(controlCommand.getCommand())
+        self.__init__thread_reciever()
 
-    def __sendCommand(self, command: str):
-        if self.__serviceProvider.get("commandsdk"):
-            self.__drone.send(command)
-        else:
-            print("Vous devez déjà entrer dans le service \"command\" du drone")
+    def getServices(self) -> ModProv.ServiceProvider:
+        return self.__services
 
-    def getLastResponse(self) -> str:
-        return self.__responses[-1].get()
+    def getThread(self) -> ModProv.ThreadProvider:
+        return self.__threads
 
-    def __thread_reciever(self):
-        while True:
-            try:
-                response = self.__drone.recieve()
-                self.__responses.append(response)
-            except socketError:
-                print("Erreur de réception de la réponse")
+    def connect(self, host: str, port: int) -> None:
+        self.__drone = ModCom.DroneConnection(self.__client, (host, port))
 
-    def getClient(self):
-        return self.__client
+    def bind(self, host: str, port: int) -> None:
+        self.__client = ModCom.ClientConnection((host, port))
+        self.__client.getConnection().settimeout(self.__timeout)
 
-    def getDrone(self) -> DroneConnection:
-        return self.__drone
+    def sendCommand(self, command: ModCmd.TelloCommandInterface, parameters: dict[str, str] = None) -> str:
+        if isinstance(command, (ModCmd.ControlCommand, ModCmd.TelemetryCommand)):
+            return self.__sendCommand(command, command.getType(), parameters)
 
-    def getStream(self) -> DroneVideoSocket:
-        return self.__videoCapturer
+    def sendRawCommand(self, command: str) -> str:
+        return self.__send(command)
 
-    def getResponses(self) -> list[Response]:
+    def __sendCommand(self, command: [ModCmd.ControlCommand, ModCmd.TelemetryCommand],
+                      command_type: ModCmd.CommandType, parameters: dict[str, str]) -> str:
+
+        if command_type == ModCmd.CommandType.CONTROL:
+            return self.__send(command.FormatCommand(parameters))
+        elif command_type == ModCmd.CommandType.INFORMATION:
+            return self.__send(command.getCommand())
+
+    def __send(self, command: str) -> str:
+
+        self.__add_response(command)
+
+        self.__drone.send(command)
+
+        if self.__authorizer_reponse_reciever:
+            return self.Response_loop_reciever().getResponse()
+        return command
+
+    def getResponses(self) -> list[ModCom.Response]:
         return self.__responses
 
-    def getServices(self) -> ServiceProvider:
-        return self.__serviceProvider
+    def Response_loop_reciever(self) -> ModCom.Response:
+        timeout = False
+        start = time()
+        while not self.getResponses()[-1].responseExists():
+            if time() - start > self.__timeout:
+                timeout = True
+                break
 
-    def getThreads(self) -> ThreadProvider:
-        return self.__threadProvider
+        if not timeout:
+            return self.getResponses()[-1]
+
+    def __add_response(self, command: str):
+        response_waiter = ModCom.Response(command)
+        self.__responses.append(response_waiter)
+
+    def __init__thread_reciever(self):
+        self.getThread().set('response_reciever', self.__thread_receiver)
+        self.getThread().get('response_reciever').daemon = True
+        self.getThread().get('response_reciever').start()
+
+    def __thread_receiver(self):
+        while True:
+            try:
+                response, _ = self.__drone.recieve(self.__buffer)
+                self.getResponses()[-1].setResponse(response)
+            except error:
+                print("Impossible de recevoir la réponse")
