@@ -10,49 +10,50 @@ from .CommandEnumParser import *
 @unique
 class TelemetryCommand(CommandEnumParser):
 
-    # 1: COMMANDE       2: UNITE
-
     # Permet de récupérer la vitesse actuelle du drone (exprimée en cm/s)
-    SPEED = ("speed?", "{unit} cm/s")
+    SPEED = ("speed?", "cm/s")
 
     # Permet de récupérer le pourcentage de batterie restant
-    BATTERY = ("battery?", "{unit} %")
+    BATTERY = ("battery?", "%")
 
     # Permet de récupérer le temps de fonctionnement du moteur depuis son lancement
-    TIME = ("time?", "{unit} sec")
+    TIME = ("time?", "sec")
 
     # Permet de récupérer la qualité du signal réseau envoyé au drone
-    WIFI = ("wifi?", "{unit} dB")
+    WIFI = ("wifi?", "dB")
 
-    # Permet d'obtenir l'identifiant de connection du socket du drone
-    SDK = "sdk?"
-
-    # Permet d'obtenir le numéro de série du drone
-    SERIAL_NUMBER = "sn"
-
-    # Permet de récupérer la hauteur actuelle du drone
-    HEIGHT = ("height?", "{unit} cm")
+    # Permet de récupérer la hauteur de vol du drone
+    HEIGHT = ("height?", "cm")
 
     # Permet de récupérer la température du drone
-    TEMPERATURE = ("temp?", "{unit} °C")
+    TEMPERATURE = ("temp?", "°C")
+
+    # Récupère l'altitude du drone
+    ATTITUDE = ("attitude?", "cm")
+
+    # Récupère la pression atmosphérique actuelle
+    BAROMETER = ("baro?", "Pa")
 
     # ................
-    ATTITUDE = ("attitude?", "{unit} cm")
+    ACCELERATION = ("acceleration?", "cm/s")
 
-    # ................
-    BAROMETER = ("baro?", "{unit} Pa")
+    # Distance entre le capteur et le sol
+    TOF = ("tof?", "mm")
 
-    # ................
-    ACCELERATION = ("acceleration?", "{unit} cm/s")
+    # Permet d'obtenir le numéro de série du drone
+    SERIAL_NUMBER = ("sn?", "")
 
-    # ................
-    TOF = "tof?"
+    # Permet d'obtenir l'identifiant de connection du socket du drone
+    SDK = ("sdk?", "")
 
     __unit: str
 
-    def __init__(self, *args):
-        unit = self._getDefault(args[1], "{unit}")
-        super().__init__(args[0], unit, False, True, CommandType.GETTER)
+    def __init__(self, command: str, unit: str):
+        self.__unit = unit
+        super().__init__(command, [], CommandType.INFORMATION)
 
-    def getUnit(self, value) -> str:
-        return self.__unit.replace("{unit}", value)
+    def getUnit(self) -> str:
+        return self.__unit
+
+    def getUnitResponse(self, response: str) -> str:
+        return response + " " + self.getUnit()

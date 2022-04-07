@@ -12,31 +12,25 @@ class ControlCommand(CommandEnumParser):
 
     # COMMAND_NAME = ( COMMAND_PROMPT, UNFORMATED RESPONSE RETURNED )
 
-    COMMAND = "command"
-    TAKEOFF = "takeoff"
-    LAND = "land"
-    STREAMON = "streamon"
-    STREAMOFF = "streamoff"
-    EMERGENCY = "emergency"
+    COMMAND = ("command", [])
+    TAKEOFF = ("takeoff", [])
+    LAND = ("land", [])
+    STREAMON = ("streamon", [])
+    STREAMOFF = ("streamoff", [])
+    EMERGENCY = ("emergency", [])
 
-    UP = ("up {y}", ['y'], True)
-    DOWN = ("down {y}", ['y'], True)
-    LEFT = ("left {x}", ['x'], True)
-    RIGHT = ("right {x}", ['x'], True)
-    FORWARD = ("forward {z}", ['z'], True)
-    BACKWARD = ("back {z}", ['z'], True)
+    UP = ("up {y}", ['y'])
+    DOWN = ("down {y}", ['y'])
+    LEFT = ("left {x}", ['x'])
+    RIGHT = ("right {x}", ['x'])
+    FORWARD = ("forward {z}", ['z'])
+    BACKWARD = ("back {z}", ['z'])
 
-    ROTATE = ("cw {angle}", ['angle'], True)
-    ROTATE_INVERT = ("cww {angle}", ['angle'], True)
+    ROTATE = ("cw {angle}", ['angle'])
+    ROTATE_INVERT = ("cww {angle}", ['angle'])
 
-    def __init__(self, *args) -> None:
-        params = self._getDefault(args[1], [])
-        editable = self._getDefault(args[2], False)
-        response = self._getDefault(args[3], False)
-        super().__init__(args[0], params, editable, response, CommandType.CONTROL)
+    def __init__(self, command: str, parameters: list):
+        super().__init__(command, parameters, CommandType.CONTROL)
 
-    def replaceParameters(self, values: dict[str, str]):
-        command = self.getCommand()
-        for parameter in self.getParameters():
-            command = command.replace("{" + parameter + "}", values[parameter])
-        return command
+    def FormatCommand(self, arguments: dict[str, str]):
+        return self._format(self.getCommand(), arguments)

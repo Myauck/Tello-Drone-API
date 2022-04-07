@@ -9,8 +9,8 @@ from enum import Enum, unique
 @unique
 class CommandType(Enum):
 
-    SETTER = 0,
-    GETTER = 1,
+    MODIFICATION = 0,
+    INFORMATION = 1,
     CONTROL = 2
 
     def type(self):

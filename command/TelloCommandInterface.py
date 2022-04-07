@@ -19,7 +19,4 @@ class TelloCommandInterface:
     def hasParameters(self) -> bool: pass
 
     @abstractmethod
-    def hasResponse(self) -> bool: pass
-
-    @abstractmethod
     def getType(self) -> CommandType: pass
