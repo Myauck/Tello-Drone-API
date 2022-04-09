@@ -92,10 +92,10 @@ class TelloAPI(API):
         """
         return super().getThread()
 
-    def Response_loop_reciever(self) -> ModCom.Response:
+    def recievedResponse(self) -> bool:
         """
         Permet de récupérer la dernière réponse reçu au moment de l'envoie d'une commande au drône
 
-        :return: Réponse du drône
+        :return: Si la réponse a été récupérée
         """
-        return super().Response_loop_reciever()
+        return super().recievedResponse()
