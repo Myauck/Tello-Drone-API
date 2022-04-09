@@ -6,31 +6,34 @@
 from time import time
 
 
-class Response:
+class Request:
 
     __sent: str
-    __response: str
+    __recv: str
+    __recieved: bool
     __start_time: float
     __duration: float
 
     def __init__(self, sent: str):
         self.__sent = sent
+        self.__recieved = False
         self.__start_time = time()
         self.__duration = -1
 
-    def whatSent(self) -> str:
+    def getRequest(self) -> str:
         return self.__sent
 
-    def setResponse(self, response: str):
-        if not self.responseExists():
-            self.__response = str(response)
+    def setResponse(self, response: str) -> None:
+        if not self.isResponseExists():
+            self.__recv = str(response)
+            self.__recieved = True
             self.__duration = time() - self.__start_time
 
-    def responseExists(self) -> bool:
-        return self.__response is not None
-
     def getResponse(self) -> str:
-        return self.__response
+        return self.__recv
 
-    def getReceptionTime(self) -> float:
+    def isResponseExists(self) -> bool:
+        return self.__recieved
+
+    def executionTime(self) -> float:
         return self.__duration

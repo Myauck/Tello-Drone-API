@@ -25,8 +25,6 @@ class ThreadProvider(ProviderInterface):
         if self.exists(threadName):
             return False
         self.__threads[threadName] = Thread(target=function)
-        self.__threads[threadName].daemon = True
-        self.__threads[threadName].start()
         return True
     
     def stop(self, threadName: str) -> bool:

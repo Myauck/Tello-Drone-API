@@ -9,13 +9,13 @@ from abc import ABC, abstractmethod
 class ProviderInterface(ABC):
 
     @abstractmethod
-    def exists(self, name: str) -> bool:
+    def exists(self) -> bool:
         pass
 
     @abstractmethod
-    def get(self, name: str):
+    def get(self) -> any:
         pass
 
     @abstractmethod
-    def set(self, name: str, value) -> bool:
+    def set(self, value: any) -> None:
         pass
